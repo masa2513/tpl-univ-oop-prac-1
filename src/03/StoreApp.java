@@ -14,15 +14,25 @@ import javax.swing.SwingUtilities;
 
 public class StoreApp extends JFrame {
 
-    private JTextField productNameField; // 商品名を入力するフィールド
-    private JTextField unitPriceField; // 単価を入力するフィールド
-    private JTextField quantityField; // 数量を入力するフィールド
-    private JButton processButton; // 処理を実行するボタン
-    private JButton keiButton; // 処理を実行するボタン
     private JTextArea outputArea; // 処理結果を表示するエリア
     private Receipt receipt = new Receipt();
+    JTextField janCodeField; // janコードを入力するフィールド
+    // 販売商品を登録するための配列
+    ProductItem[] saleProducts = new ProductItem[10];
+    private JButton calcButton; // 合計計算ボタン
+
 
     public StoreApp() {
+        saleProducts[0] = new ProductItem("アンパンマン", 100, 1, "1234567890123");
+        saleProducts[1] = new ProductItem("バイキンマン", 200, 1, "2345678901234");
+        saleProducts[2] = new ProductItem("ドキンちゃん", 300, 1, "3456789012345");
+        saleProducts[3] = new ProductItem("食パンまん", 400, 1, "4567890123456");
+        saleProducts[4] = new ProductItem("カレーパンマン", 500, 1, "5678901234567");
+        saleProducts[5] = new ProductItem("チーズ", 600, 1, "6789012345678");
+        saleProducts[6] = new ProductItem("バターおじさん", 700, 1, "7890123456789");
+        saleProducts[7] = new ProductItem("メロンパンちゃん", 800, 1, "8901234567890");
+        saleProducts[8] = new ProductItem("チーズパンちゃん", 900, 1, "9012345678901");
+        saleProducts[9] = new ProductItem("ソーセージパンちゃん", 1000, 1, "0123456789012");
         // --- ウィンドウの基本設定 ---
         setTitle("レジ");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -49,7 +59,7 @@ public class StoreApp extends JFrame {
         gbc.weightx = 0.0; // ラベル列は伸縮させない
         gbc.fill = GridBagConstraints.NONE; // サイズ変更しない
         gbc.anchor = GridBagConstraints.EAST; // ラベルを右寄せにする
-        JLabel productNameLabel = new JLabel("商品名:");
+        JLabel productNameLabel = new JLabel("janコード:");
         topPanel.add(productNameLabel, gbc);
 
         // 商品名フィールド (gridx=1, gridy=0)
@@ -57,74 +67,17 @@ public class StoreApp extends JFrame {
         gbc.gridy = 0;
         gbc.weightx = 1.0; // フィールド列は横方向に伸縮させる
         gbc.fill = GridBagConstraints.HORIZONTAL; // 横方向にいっぱいに広げる
-        productNameField = new JTextField();
-        topPanel.add(productNameField, gbc);
+        janCodeField = new JTextField();
+        topPanel.add(janCodeField, gbc);
 
-        // --- 2行目: 単価ラベルとフィールド ---
-        // 単価ラベル (gridx=0, gridy=1)
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0.0;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.EAST;
-        JLabel unitPriceLabel = new JLabel("単価:");
-        topPanel.add(unitPriceLabel, gbc);
-
-        // 単価フィールド (gridx=1, gridy=1)
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        unitPriceField = new JTextField();
-        topPanel.add(unitPriceField, gbc);
-
-        // --- 3行目: 数量ラベルとフィールド ---
-        // 数量ラベル (gridx=0, gridy=2)
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 0.0;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.EAST;
-        JLabel quantityLabel = new JLabel("数量:");
-        topPanel.add(quantityLabel, gbc);
-
-        // 数量フィールド (gridx=1, gridy=2)
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        quantityField = new JTextField();
-        topPanel.add(quantityField, gbc);
-
-        // --- 4行目: 計算ボタン ---
-        // ボタン (gridx=1, gridy=3) 右寄せで配置
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        gbc.weightx = 0.0; // ボタン自体は伸縮させない
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.EAST; // ボタンを右端に寄せる
-        processButton = new JButton("追加");
-        topPanel.add(processButton, gbc);
-
-        // --- ボタンを配置するパネルを作成 ---
-
-        // ボタン (gridx=1, gridy=3) 右寄せで配置
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0; // ボタン自体は伸縮させない
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.EAST; // ボタンを右端に寄せる
-        keiButton = new JButton("合計計算");
-        bottomPanel.add(keiButton, gbc); // ボタンをパネルに追加
+        // 合計ボタンをボトムパネルに追加
+        calcButton = new JButton("合計計算");
+        bottomPanel.add(calcButton);
 
         // --- 中央に配置する部品 (結果表示エリア) ---
         outputArea = new JTextArea();
         // outputArea.setEditable(false); // 必要に応じて編集不可に設定
         JScrollPane scrollPane = new JScrollPane(outputArea);
-
-        // // --- 部品をウィンドウに追加 ---
-        // add(topPanel, BorderLayout.NORTH);
-        // add(scrollPane, BorderLayout.CENTER);
 
         // --- 部品をウィンドウに追加 ---
         // 上部パネルをウィンドウの北 (上) に配置
@@ -135,54 +88,28 @@ public class StoreApp extends JFrame {
         add(bottomPanel, BorderLayout.SOUTH); // ボタンを下部に配置
 
         // --- ボタンのアクション設定 ---
-        processButton.addActionListener(e -> {
+        calcButton.addActionListener(e -> {
             System.out.println("ボタンが押されました。");
-            // 各フィールドからテキストを取得
-            String productName = productNameField.getText();
-            String unitPriceText = unitPriceField.getText();
-            String quantityText = quantityField.getText();
-
-            // 入力が空でないか基本的なチェック
-            if (productName.isEmpty() || unitPriceText.isEmpty() || quantityText.isEmpty()) {
-                System.err.println("未入力項目があります。");
-                return; // 処理を中断
-            }
-
-            // 単価と数量を数値に変換
-            // 単価は小数点を含む可能性があるためdoubleを使用
-            double unitPrice = Double.parseDouble(unitPriceText);
-            // 数量は整数とする場合が多いが、状況に応じてdoubleも可
-            int quantity = Integer.parseInt(quantityText);
-
-            // 単価や数量が負でないかチェック
-            if (unitPrice < 0 || quantity < 0) {
-                System.err.println("単価と数量には正の数値を入力してください。");
-                return;
-            }
-
-            ProductItem item = new ProductItem(productName, unitPrice, quantity);
-
-            receipt.addProduct(item);
-
-            // appendメソッドで追記
-            outputArea.append(item.toString() + "\n");
-            // 入力フィールドをクリアする
-            productNameField.setText("");
-            unitPriceField.setText("");
-            quantityField.setText("");
-
+            // 合計点数と合計金額を出力
+            outputArea.append("\n--- 合計点数: " + receipt.getTotalQuantity() + " 点 ---");
+            outputArea.append("\n--- 合計金額: " + receipt.getTotalPrice() + " 円 ---\n\n");
         });
 
-        keiButton.addActionListener(e -> {
-            double totalPrice = receipt.getTotalPrice();
-
-            int totalQuantity = receipt.getTotalQuantity();
-
-            // 合計点数と合計金額を計算して表示
-            String summary = String.format(
-                    "\n--- 合計点数: %d 点 ---\n--- 合計金額: %.2f 円 ---\n",
-                    totalQuantity, totalPrice);
-            outputArea.append(summary);
+        //janコードを入力してボタンを押された時の処理
+        janCodeField.addActionListener(e-> {
+            String janCode = janCodeField.getText();
+            //janコードを元に商品を検索
+            for (int i = 0; i < saleProducts.length; i++) {
+                if (saleProducts[i].jancode.equals(janCode)&& saleProducts[i] != null) {
+                    // 商品が見つかった場合、レシートに追加
+                    receipt.addProduct(saleProducts[i]);
+                    //結果をテキストエリアに表示
+                    outputArea.append(saleProducts[i].toString());
+                    break; // 商品が見つかったのでループを抜ける
+                }
+            }
+            janCodeField.setText(""); // フィールドをクリア
+            janCodeField.requestFocus(); // フォーカスを戻す
         });
 
         // --- ウィンドウを表示 ---

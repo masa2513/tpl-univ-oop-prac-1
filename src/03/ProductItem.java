@@ -2,6 +2,7 @@ public class ProductItem {
     public String  productName;
     public double  unitPrice;
     public int  quantity;
+    public String jancode;
     //小計を計算するメソッド
     public double getSubtotal(){
         return this.unitPrice * this.quantity;
@@ -13,9 +14,10 @@ public class ProductItem {
         return ret;
     }
 
-    public ProductItem(String productName, double unitPrice, int quantity) {
+    public ProductItem(String productName, double unitPrice, int quantity, String jancode) {
         this.productName = productName;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
+        this.jancode = jancode;
     }
 }
