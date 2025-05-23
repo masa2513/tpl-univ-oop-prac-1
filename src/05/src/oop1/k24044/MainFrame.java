@@ -31,9 +31,13 @@ public class MainFrame extends JFrame {
         JRadioButton rectangleRadioButton = new JRadioButton("四角形");
         rectangleRadioButton.setActionCommand("Rectangle");
 
+        JRadioButton triangleRadioButton = new JRadioButton("三角形");
+        triangleRadioButton.setActionCommand("Triangle");
+
         ButtonGroup shapeGroup = new ButtonGroup();
         shapeGroup.add(circleRadioButton);
         shapeGroup.add(rectangleRadioButton);
+        shapeGroup.add(triangleRadioButton);
 
         ActionListener shapeSelectionListener = e -> {
             drawingPanel.setCurrentShapeType(e.getActionCommand());
@@ -41,6 +45,7 @@ public class MainFrame extends JFrame {
 
         circleRadioButton.addActionListener(shapeSelectionListener);
         rectangleRadioButton.addActionListener(shapeSelectionListener);
+        triangleRadioButton.addActionListener(shapeSelectionListener);
 
         // --- 色選択ラジオボタン ---
         JRadioButton redRadioButton = new JRadioButton("赤");
@@ -78,17 +83,36 @@ public class MainFrame extends JFrame {
             drawingPanel.clearShapes();
         });
 
+        JButton deleteButton = new JButton("削除");
+        deleteButton.addActionListener(e -> {
+            drawingPanel.deleteSelected();
+        });
+
+        JButton undoButton = new JButton("元に戻す");
+        undoButton.addActionListener(e -> {
+            drawingPanel.undo();
+        });
+
+        JButton redoButton = new JButton("やり直し");
+        redoButton.addActionListener(e -> {
+            drawingPanel.redo();
+        });
+
         // ツールバーにコンポーネントを配置
         JToolBar toolBar = new JToolBar();
         toolBar.add(new JLabel("図形: "));
         toolBar.add(circleRadioButton);
         toolBar.add(rectangleRadioButton);
+        toolBar.add(triangleRadioButton);
         toolBar.addSeparator();
         toolBar.add(new JLabel("色: "));
         toolBar.add(redRadioButton);
         toolBar.add(blueRadioButton);
         toolBar.add(greenRadioButton);
         toolBar.addSeparator();
+        toolBar.add(undoButton);
+        toolBar.add(redoButton);
+        toolBar.add(deleteButton);
         toolBar.add(clearButton);
 
         add(toolBar, BorderLayout.NORTH);
