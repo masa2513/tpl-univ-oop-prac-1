@@ -24,6 +24,24 @@ public class SelectableGuiApp extends JFrame {
     private ButtonGroup taskButtonGroup; // ラジオボタンをグループ化
 
     /**
+     * タスクの生成を担当するファクトリークラス
+     */
+    private static class TaskFactory {
+        /**
+         * 指定されたコマンドに対応するタスクを生成します
+         * @param command タスクの種類を示すコマンド
+         * @return 生成されたタスクのインスタンス
+         */
+        public static Executable createTask(String command) {
+            return switch (command) {
+                case "TaskA" -> new TaskA();
+                case "TaskB" -> new TaskB();
+                default -> null;
+            };
+        }
+    }
+
+    /**
      * {@code SelectableGuiApp} のコンストラクタ。
      * GUIの初期化とコンポーネントの配置を行います。
      */
@@ -60,16 +78,10 @@ public class SelectableGuiApp extends JFrame {
 
         // 7. 実行ボタンにActionListenerを追加
         executeButton.addActionListener(e -> {
-            Executable selectedTask = null; // Executableインターフェイス型の変数を準備
             String selectedActionCommand = taskButtonGroup.getSelection().getActionCommand(); // 選択されているラジオボタンのコマンドを取得
 
-            // 選択されたコマンドに応じて、対応するタスクのインスタンスを生成
-            // ここでポリモーフィズムが活用される
-            if ("TaskA".equals(selectedActionCommand)) {
-                selectedTask = new TaskA();
-            } else if ("TaskB".equals(selectedActionCommand)) {
-                selectedTask = new TaskB();
-            }
+            // ファクトリーを使用してタスクを生成
+            Executable selectedTask = TaskFactory.createTask(selectedActionCommand);
 
             // selectedTask が null でなければ (つまり、何らかのタスクが選択されていれば)
             if (selectedTask != null) {
