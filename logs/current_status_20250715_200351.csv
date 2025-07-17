@@ -1,0 +1,8 @@
+timestamp,cpu_usage,memory_usage,disk_usage,network_in,network_out
+2025-07-15 20:03:51,4.61,98.65,92.41,0,0
+
+# System Information
+# OS: Mac OS X 15.5 (aarch64)
+# Processors: 8
+# Disk Information
+# Disk /: 92.4% used (211.0 GB / 228.3 GB)

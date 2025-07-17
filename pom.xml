@@ -125,6 +125,7 @@
                                 <source>src/12</source>
                                 <source>src/13</source>
                                 <source>src/14</source>
+                                <source>src/lastkadai</source>
                                 <!-- 必要な分だけ追加 -->
                             </sources>
                         </configuration>
