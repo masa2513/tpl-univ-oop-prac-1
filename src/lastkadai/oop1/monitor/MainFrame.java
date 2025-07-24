@@ -1,11 +1,28 @@
 package oop1.monitor;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 /**
  * システム監視ツールのメインウィンドウ
@@ -22,7 +39,6 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
 
     // UI コンポーネント
     private JButton startStopButton;
-    private JButton settingsButton;
     private JButton logButton;
 
     // リソース表示エリア
@@ -32,6 +48,11 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
     private JLabel memoryLabel;
     private JProgressBar diskProgressBar;
     private JLabel diskLabel;
+
+    // リアルタイムグラフ
+    private RealtimeGraphPanel cpuGraphPanel;
+    private RealtimeGraphPanel memoryGraphPanel;
+    private RealtimeGraphPanel diskGraphPanel;
 
     // ステータスバー
     private JLabel statusLabel;
@@ -59,7 +80,6 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
 
         // ツールバーボタン
         startStopButton = new JButton("監視開始");
-        settingsButton = new JButton("設定");
         logButton = new JButton("ログ");
 
         // CPU表示
@@ -81,6 +101,9 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
         statusLabel = new JLabel("監視停止中");
         uptimeLabel = new JLabel("稼働時間: 00:00:00");
         lastUpdateLabel = new JLabel("最終更新: --:--:--");
+
+        // リアルタイムグラフパネル初期化
+        initializeGraphPanels();
     }
 
     private void setupLayout() {
@@ -89,7 +112,6 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
         // ツールバー
         JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolbarPanel.add(startStopButton);
-        toolbarPanel.add(settingsButton);
         toolbarPanel.add(logButton);
         add(toolbarPanel, BorderLayout.NORTH);
 
@@ -168,15 +190,27 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
         return panel;
     }
 
+    private void initializeGraphPanels() {
+        // 5分間のデータを保持（300秒 = 300データポイント）
+        int maxDataPoints = 300;
+
+        cpuGraphPanel = new RealtimeGraphPanel(
+                "CPU使用率", "使用率 (%)", Color.BLUE, maxDataPoints);
+        memoryGraphPanel = new RealtimeGraphPanel(
+                "メモリ使用率", "使用率 (%)", Color.GREEN, maxDataPoints);
+        diskGraphPanel = new RealtimeGraphPanel(
+                "ディスク使用率", "使用率 (%)", Color.ORANGE, maxDataPoints);
+    }
+
     private JPanel createGraphPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("リアルタイムグラフ"));
 
-        // とりあえずプレースホルダー
+        // タブパネルにリアルタイムグラフを追加
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("CPU", new JLabel("CPUグラフ（実装予定）", JLabel.CENTER));
-        tabbedPane.addTab("メモリ", new JLabel("メモリグラフ（実装予定）", JLabel.CENTER));
-        tabbedPane.addTab("ディスク", new JLabel("ディスクグラフ（実装予定）", JLabel.CENTER));
+        tabbedPane.addTab("CPU", cpuGraphPanel);
+        tabbedPane.addTab("メモリ", memoryGraphPanel);
+        tabbedPane.addTab("ディスク", diskGraphPanel);
 
         panel.add(tabbedPane, BorderLayout.CENTER);
         return panel;
@@ -210,11 +244,6 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
                     startMonitoring();
                 }
             }
-        });
-
-        settingsButton.addActionListener(e -> {
-            // TODO: 設定画面を開く
-            JOptionPane.showMessageDialog(this, "設定画面は実装予定です。");
         });
 
         logButton.addActionListener(e -> {
@@ -252,6 +281,17 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
         if (updateTimer != null) {
             updateTimer.stop();
         }
+
+        // グラフをクリア
+        if (cpuGraphPanel != null) {
+            cpuGraphPanel.clearGraph();
+        }
+        if (memoryGraphPanel != null) {
+            memoryGraphPanel.clearGraph();
+        }
+        if (diskGraphPanel != null) {
+            diskGraphPanel.clearGraph();
+        }
     }
 
     private void updateSystemInfo() {
@@ -265,6 +305,11 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
             // プログレスバーの色を使用率に応じて変更
             cpuProgressBar.setForeground(getUsageColor(cpuUsage));
 
+            // リアルタイムグラフにデータ追加
+            if (cpuGraphPanel != null) {
+                cpuGraphPanel.addData(cpuUsage);
+            }
+
             // メモリ使用率更新
             SystemMonitorService.MemoryInfo memoryInfo = monitorService.getMemoryUsage();
             double memoryUsage = memoryInfo.getUsagePercentage();
@@ -275,6 +320,11 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
                     formatBytes(memoryInfo.getUsedMemory()),
                     formatBytes(memoryInfo.getTotalMemory())));
             memoryProgressBar.setForeground(getUsageColor(memoryUsage));
+
+            // リアルタイムグラフにデータ追加
+            if (memoryGraphPanel != null) {
+                memoryGraphPanel.addData(memoryUsage);
+            }
 
             // ディスク使用率更新（最初のディスクのみ）
             double diskUsage = 0.0;
@@ -290,6 +340,11 @@ public class MainFrame extends JFrame implements AlertManager.AlertListener {
                         formatBytes(diskInfo.getUsedSpace()),
                         formatBytes(diskInfo.getTotalSpace())));
                 diskProgressBar.setForeground(getUsageColor(diskUsage));
+
+                // リアルタイムグラフにデータ追加
+                if (diskGraphPanel != null) {
+                    diskGraphPanel.addData(diskUsage);
+                }
             }
 
             // 監視データを作成してアラートチェック
