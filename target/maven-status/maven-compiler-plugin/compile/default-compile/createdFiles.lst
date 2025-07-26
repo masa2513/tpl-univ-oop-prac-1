@@ -10,6 +10,7 @@ oop1/monitor/RealtimeDataBuffer.class
 oop1/monitor/AlertManager$AlertListener.class
 oop1/monitor/SystemMonitorService$DiskInfo.class
 oop1/monitor/AlertLog.class
+oop1/.DS_Store
 oop1/monitor/AlertManager$AlertLevel.class
 oop1/monitor/RealtimeGraphPanel.class
 oop1/monitor/RealtimeGraphPanel$GraphStatistics.class
